@@ -6,6 +6,9 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -14,8 +17,8 @@ import java.util.ArrayList;
 public class GUI extends JFrame implements ActionListener {
     TestInteger testInt = new TestInteger();
     BTreePlus<Integer> bInt;
-    private JButton buttonClean, buttonRemove, buttonLoad, buttonSave, buttonAddMany, buttonAddItem, buttonRefresh;
-    private JTextField txtNbreItem, txtNbreSpecificItem, txtU, txtFile, removeSpecific;
+    private JButton buttonClean, buttonRemove, buttonLoad, buttonSave, buttonAddMany, buttonAddItem, buttonRefresh, buttonAddFromCSV;
+    private JTextField txtNbreItem, txtNbreSpecificItem, txtU, txtFile, removeSpecific, txtCSV;
     private final JTree tree = new JTree();
 
     public GUI() {
@@ -60,8 +63,24 @@ public class GUI extends JFrame implements ActionListener {
 					}
 					 */
                 }
+            }
+            //Fonction pour lire un fichier CSV
+            else if (e.getSource() == buttonAddFromCSV){
+                String row;
+                try {
+                    BufferedReader csvReader = new BufferedReader(new FileReader(txtCSV.getText()));
+                    while((row = csvReader.readLine()) != null){
+                        // TODO : Gérer la row HEADER (ou enlever du CSV ??)
+                        String[] data = row.split(",");
+                        System.out.println("Data Row : " + data[0] + " " +  data[1] + " " + data[2] + " " +  data[3]);
+                    }
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
 
-            } else if (e.getSource() == buttonAddItem) {
+
+            }
+            else if (e.getSource() == buttonAddItem) {
                 if (!bInt.addValeur(Integer.parseInt(txtNbreSpecificItem.getText())))
                     System.out.println("Tentative d'ajout d'une valeur existante : " + txtNbreSpecificItem.getText());
                 txtNbreSpecificItem.setText(
@@ -101,7 +120,7 @@ public class GUI extends JFrame implements ActionListener {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(0, 5, 2, 0);
 
-        JLabel labelU = new JLabel("Nombre max de cl?s par noeud (2m): ");
+        JLabel labelU = new JLabel("Nombre max de clefs par noeud (2m): ");
         c.gridx = 0;
         c.gridy = 1;
         c.weightx = 1;
@@ -113,7 +132,7 @@ public class GUI extends JFrame implements ActionListener {
         c.weightx = 2;
         pane1.add(txtU, c);
 
-        JLabel labelBetween = new JLabel("Nombre de clefs ? ajouter:");
+        JLabel labelBetween = new JLabel("Nombre de clefs à ajouter:");
         c.gridx = 0;
         c.gridy = 2;
         c.weightx = 1;
@@ -126,14 +145,14 @@ public class GUI extends JFrame implements ActionListener {
         pane1.add(txtNbreItem, c);
 
 
-        buttonAddMany = new JButton("Ajouter n ?l?ments al?atoires ? l'arbre");
+        buttonAddMany = new JButton("Ajouter n éléments aléatoires à l'arbre");
         c.gridx = 2;
         c.gridy = 2;
         c.weightx = 1;
         c.gridwidth = 2;
         pane1.add(buttonAddMany, c);
 
-        JLabel labelSpecific = new JLabel("Ajouter une valeur sp?cifique:");
+        JLabel labelSpecific = new JLabel("Ajouter une valeur spécifique:");
         c.gridx = 0;
         c.gridy = 3;
         c.weightx = 1;
@@ -147,14 +166,14 @@ public class GUI extends JFrame implements ActionListener {
         c.gridwidth = 1;
         pane1.add(txtNbreSpecificItem, c);
 
-        buttonAddItem = new JButton("Ajouter l'?l?ment");
+        buttonAddItem = new JButton("Ajouter l'élément");
         c.gridx = 2;
         c.gridy = 3;
         c.weightx = 1;
         c.gridwidth = 2;
         pane1.add(buttonAddItem, c);
 
-        JLabel labelRemoveSpecific = new JLabel("Retirer une valeur sp?cifique:");
+        JLabel labelRemoveSpecific = new JLabel("Retirer une valeur spécifique:");
         c.gridx = 0;
         c.gridy = 4;
         c.weightx = 1;
@@ -168,7 +187,7 @@ public class GUI extends JFrame implements ActionListener {
         c.gridwidth = 1;
         pane1.add(removeSpecific, c);
 
-        buttonRemove = new JButton("Supprimer l'?l?ment n de l'arbre");
+        buttonRemove = new JButton("Supprimer l'élément n de l'arbre");
         c.gridx = 2;
         c.gridy = 4;
         c.weightx = 1;
@@ -217,12 +236,33 @@ public class GUI extends JFrame implements ActionListener {
         c.gridwidth = 2;
         pane1.add(buttonRefresh, c);
 
+        buttonAddFromCSV = new JButton("Créer arbre depuis un fichier csv");
+        c.gridx = 2;
+        c.gridy = 8;
+        c.weightx = 1;
+        c.gridwidth = 2;
+        pane1.add(buttonAddFromCSV, c);
+
+        JLabel labelCSVFilename = new JLabel("Nom du CSV à ajouter : ");
+        c.gridx = 0;
+        c.gridy = 8;
+        c.weightx = 1;
+        c.gridwidth = 1;
+        pane1.add(labelCSVFilename, c);
+
+        txtCSV = new JTextField("DBProject.csv", 7);
+        c.gridx = 1;
+        c.gridy = 8;
+        c.weightx = 1;
+        c.gridwidth = 1;
+        pane1.add(txtCSV, c);
+
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipady = 400;       //reset to default
         c.weighty = 1.0;   //request any extra vertical space
         c.gridwidth = 4;   //2 columns wide
         c.gridx = 0;
-        c.gridy = 8;
+        c.gridy = 9;
 
         JScrollPane scrollPane = new JScrollPane(tree);
         pane1.add(scrollPane, c);
@@ -238,6 +278,7 @@ public class GUI extends JFrame implements ActionListener {
         buttonRemove.addActionListener(this);
         buttonClean.addActionListener(this);
         buttonRefresh.addActionListener(this);
+        buttonAddFromCSV.addActionListener(this);
 
         return pane1;
     }

@@ -82,7 +82,7 @@ public class GUI extends JFrame implements ActionListener {
                             bInt.addValeurFromCSV(Integer.parseInt(data[0]), numRow);
                         }
                     }
-                    //bInt.checkTabCSV();
+                    bInt.checkMapCSV();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

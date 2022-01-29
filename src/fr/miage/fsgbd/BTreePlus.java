@@ -1,5 +1,8 @@
 package fr.miage.fsgbd;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 
 
@@ -9,7 +12,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class BTreePlus<Type> implements java.io.Serializable {
     private Noeud<Type> racine;
-    //private int[] tabCSV = [];
+    private Map<Integer, Integer> mapCSV = new HashMap<Integer,Integer>();
 
     public BTreePlus(int u, Executable e) {
         racine = new Noeud<Type>(u, e, null);
@@ -54,7 +57,7 @@ public class BTreePlus<Type> implements java.io.Serializable {
 
     public boolean addValeurFromCSV(Type valeur, int numRow) {
         System.out.println("Ajout de la valeur : " + valeur.toString() + " ayant comme pointeur " + numRow );
-        //tabCSV[(int)valeur] = numRow;
+        mapCSV.put(Integer.parseInt(valeur.toString()), numRow);
         if (racine.contient(valeur) == null) {
             Noeud<Type> newRacine = racine.addValeur(valeur);
             if (racine != newRacine)
@@ -64,11 +67,11 @@ public class BTreePlus<Type> implements java.io.Serializable {
         return false;
     }
 
-    /*public void checkTabCSV(){
-        for (int pointeur : tabCSV) {
-            System.out.println("tabCSV[" + pointeur + "] = " + pointeur );
+    public void checkMapCSV(){
+        for (Map.Entry<Integer, Integer> entry : mapCSV.entrySet()) {
+            System.out.println("Clef " + entry.getKey() + " - Valeur " + entry.getValue());
         }
-    }*/
+    }
 
 
     public void removeValeur(Type valeur) {

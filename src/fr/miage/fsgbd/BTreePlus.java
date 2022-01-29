@@ -9,6 +9,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class BTreePlus<Type> implements java.io.Serializable {
     private Noeud<Type> racine;
+    //private int[] tabCSV = [];
 
     public BTreePlus(int u, Executable e) {
         racine = new Noeud<Type>(u, e, null);
@@ -50,6 +51,24 @@ public class BTreePlus<Type> implements java.io.Serializable {
         }
         return false;
     }
+
+    public boolean addValeurFromCSV(Type valeur, int numRow) {
+        System.out.println("Ajout de la valeur : " + valeur.toString() + " ayant comme pointeur " + numRow );
+        //tabCSV[(int)valeur] = numRow;
+        if (racine.contient(valeur) == null) {
+            Noeud<Type> newRacine = racine.addValeur(valeur);
+            if (racine != newRacine)
+                racine = newRacine;
+            return true;
+        }
+        return false;
+    }
+
+    /*public void checkTabCSV(){
+        for (int pointeur : tabCSV) {
+            System.out.println("tabCSV[" + pointeur + "] = " + pointeur );
+        }
+    }*/
 
 
     public void removeValeur(Type valeur) {

@@ -67,13 +67,22 @@ public class GUI extends JFrame implements ActionListener {
             //Fonction pour lire un fichier CSV
             else if (e.getSource() == buttonAddFromCSV){
                 String row;
+                int numRow = 0;
                 try {
                     BufferedReader csvReader = new BufferedReader(new FileReader(txtCSV.getText()));
                     while((row = csvReader.readLine()) != null){
-                        // TODO : Gérer la row HEADER (ou enlever du CSV ??)
+                        numRow ++;
                         String[] data = row.split(",");
-                        System.out.println("Data Row : " + data[0] + " " +  data[1] + " " + data[2] + " " +  data[3]);
+                        System.out.println("Data Row " + numRow + " : " + data[0] + " " +  data[1] + " " + data[2] + " " +  data[3]);
+                        // TODO : Gérer la row HEADER (ou enlever du CSV ??)   
+                        if (data[0].toString().contentEquals("id")){ // => pas terrible en l'état
+                        } 
+                        else {
+                            //Add data au Btree en tableau associatif : map[id(duCSV)] = pointeur(numRow)
+                            bInt.addValeurFromCSV(Integer.parseInt(data[0]), numRow);
+                        }
                     }
+                    //bInt.checkTabCSV();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

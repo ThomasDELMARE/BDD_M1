@@ -255,11 +255,11 @@ public class BTreePlus<Type> implements java.io.Serializable {
 
         System.out.println("\nPlus petite valeur pour Map : " + minCSvValueViaMap);
         System.out.println("Plus grande valeur pour Map : " + maxCSvValueViaMap);
-        System.out.println("Plus petite valeur pour Map : " + moyenneCsvValueViaMap);
+        System.out.println("Moyenne pour Map : " + moyenneCsvValueViaMap);
 
         System.out.println("\nPlus petite valeur pour File : " + minCSvValueViaFile);
         System.out.println("Plus grande valeur pour File : " + maxCSvValueViaFile);
-        System.out.println("Plus petite valeur pour File : " + moyenneCsvValueViaFile);
+        System.out.println("Moyenne pour File : " + moyenneCsvValueViaFile);
 
     }
 

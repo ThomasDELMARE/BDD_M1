@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -109,7 +111,7 @@ public class BTreePlus<Type> implements java.io.Serializable {
     }
 
     public boolean addValeur(Type valeur) {
-        System.out.println("Ajout de la valeur : " + valeur.toString());
+        // System.out.println("Ajout de la valeur : " + valeur.toString());
         if (racine.contient(valeur) == null) {
             Noeud<Type> newRacine = racine.addValeur(valeur);
             if (racine != newRacine)
@@ -120,7 +122,8 @@ public class BTreePlus<Type> implements java.io.Serializable {
     }
 
     public boolean addValeurFromCSV(Type valeur, int numRow) {
-        System.out.println("Ajout de la valeur : " + valeur.toString() + " ayant comme pointeur " + numRow);
+        // System.out.println("Ajout de la valeur : " + valeur.toString() + " ayant
+        // comme pointeur " + numRow);
         mapCSV.put(Integer.parseInt(valeur.toString()), numRow);
         if (racine.contient(valeur) == null) {
             Noeud<Type> newRacine = racine.addValeur(valeur);
@@ -148,36 +151,128 @@ public class BTreePlus<Type> implements java.io.Serializable {
 
     // RECHERCHE
 
-    public Integer searchForCsvValueViaMap(Integer wantedValue) {
-        // En se basant sur l'index
-        Object wantedKey = mapCSV.keySet().toArray()[wantedValue];
-        Object valueOfWantedKey = mapCSV.get(wantedKey);
-        System.out.println("Id value from Map :" + valueOfWantedKey + " for Index : " + wantedValue);
+    public double searchForCsvValueViaMap(Integer wantedValue) {
+        long startTime = System.nanoTime();
 
-        return null;
+        Integer foundValue = mapCSV.get(wantedValue);
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime);
+
+        // System.out.println("searchForCsvValueViaMap found : " + foundValue);
+        // System.out.println("searchForCsvValueViaMap duration : " + duration);
+
+        return duration;
     }
 
-    public Integer searchForCsvValueViaFile(Integer wantedValue, String csvPath) {
+    public double searchForCsvValueViaFile(Integer wantedValue, String csvPath) {
+        long startTime = System.nanoTime();
         String row;
-        // On ignore le premier index, c'est la description des données du csv
         int numRow = 0;
+
+        if(csvPath == "" || csvPath == null){
+            csvPath = "DBProject.csv";
+        }
+
         try {
             BufferedReader csvReader = new BufferedReader(new FileReader(csvPath));
             while ((row = csvReader.readLine()) != null) {
-                if (numRow == wantedValue) {
-                    String[] data = row.split(",");
-                        System.out.println(
-                            "Data Row " + numRow + " : " + data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
-                            // On retourne l'Id
-                    return Integer.parseInt(data[0]);
-                }
                 numRow++;
+                String[] data = row.split(",");
+
+                if (!data[0].equals("id")) {
+                    if (wantedValue == Integer.parseInt(data[0])) {
+                        // System.out.println(
+                                // "Data Row " + numRow + " : " + data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
+
+                        long endTime = System.nanoTime();
+                        long duration = (endTime - startTime);
+
+                        // System.out.println("searchForCsvValueViaFile found : " + numRow);
+                        // System.out.println("searchForCsvValueViaFile duration : " + duration);
+
+                        // On retourne l'Id
+                        return duration;
+                    }
+
+                }
             }
             csvReader.close();
         } catch (IOException e1) {
             e1.printStackTrace();
-            return null;
+            return 0;
         }
-        return null;
+        return 0;
+    }
+
+    public void lancerTestRecherche() {
+        ArrayList<Integer> listeRecherches = genererNombresAleatoires();
+        
+        double totalFile = 0;
+        double totalMap = 0;
+
+        double tempDurationFile = 0;
+        double tempDurationMap = 0;
+
+        double maxCSvValueViaFile = 0;
+        double maxCSvValueViaMap = 0;
+
+        // Ca pourrait être géré d'une meilleure façon
+        double minCSvValueViaFile = 1000000;
+        double minCSvValueViaMap = 1000000;
+
+        double moyenneCsvValueViaFile = 0;
+        double moyenneCsvValueViaMap = 0;
+
+        for (int i = 0; i < listeRecherches.size(); i++) {
+            tempDurationFile = searchForCsvValueViaFile(listeRecherches.get(i), "");
+            tempDurationMap = searchForCsvValueViaMap(listeRecherches.get(i));
+
+            // On regarde si la durée est plus grande que celle connue
+            if(tempDurationFile > maxCSvValueViaFile){
+                maxCSvValueViaFile = tempDurationFile;
+            }
+            if(tempDurationMap > maxCSvValueViaMap){
+                maxCSvValueViaMap = tempDurationMap;
+            }
+
+            // On regarde si la durée est plus petite que celle connue
+            if(tempDurationFile < minCSvValueViaFile){
+                minCSvValueViaFile = tempDurationFile;
+            }
+            if(tempDurationMap < minCSvValueViaMap){
+                minCSvValueViaMap = tempDurationMap;
+            }
+
+            totalMap += tempDurationMap;
+            totalFile += tempDurationFile;
+
+        }
+
+        // On marque la durée moyenne de traitement pour chacune des opérations
+        moyenneCsvValueViaFile = totalFile / listeRecherches.size();
+        moyenneCsvValueViaMap = totalMap / listeRecherches.size();
+
+        System.out.println("\nPlus petite valeur pour Map : " + minCSvValueViaMap);
+        System.out.println("Plus grande valeur pour Map : " + maxCSvValueViaMap);
+        System.out.println("Plus petite valeur pour Map : " + moyenneCsvValueViaMap);
+
+        System.out.println("\nPlus petite valeur pour File : " + minCSvValueViaFile);
+        System.out.println("Plus grande valeur pour File : " + maxCSvValueViaFile);
+        System.out.println("Plus petite valeur pour File : " + moyenneCsvValueViaFile);
+
+    }
+
+    public ArrayList<Integer> genererNombresAleatoires() {
+        ArrayList<Integer> numbersList = new ArrayList<>();
+        Random rand = new Random();
+        Collection<Integer> valuesToRandom = mapCSV.keySet();
+        ArrayList<Integer> list = new ArrayList<>(valuesToRandom); 
+
+        for (int i = 0; i < 100; i++) {
+            numbersList.add(list.get(rand.nextInt(list.size())));
+        }
+
+        return numbersList;
     }
 }

@@ -74,7 +74,7 @@ public class GUI extends JFrame implements ActionListener {
                         numRow ++;
                         String[] data = row.split(",");
                         
-                        System.out.println("Data Row " + numRow + " : " + data[0] + " " +  data[1] + " " + data[2] + " " +  data[3]);
+                        // System.out.println("Data Row " + numRow + " : " + data[0] + " " +  data[1] + " " + data[2] + " " +  data[3]);
                             // TODO : Gérer la row HEADER (ou enlever du CSV ??)   
                         if (data[0].toString().contentEquals("id")){ // => pas terrible en l'état
                         } 
@@ -85,8 +85,7 @@ public class GUI extends JFrame implements ActionListener {
                     }
 
                     // bInt.checkMapCSV();
-                    bInt.searchForCsvValueViaFile(1, txtCSV.getText());
-                    bInt.searchForCsvValueViaMap(1);
+                    bInt.lancerTestRecherche();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

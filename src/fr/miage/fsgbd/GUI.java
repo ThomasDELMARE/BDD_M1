@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * @author Galli Gregory, Mopolo Moke Gabriel
@@ -45,7 +44,8 @@ public class GUI extends JFrame implements ActionListener {
                 tree.updateUI();
             }
         } else {
-            if (bInt == null)
+            // Initialisation d'un BTree si null
+            if (bInt == null) 
                 bInt = new BTreePlus<Integer>(Integer.parseInt(txtU.getText()), testInt);
 
             if (e.getSource() == buttonAddMany) {
@@ -82,7 +82,7 @@ public class GUI extends JFrame implements ActionListener {
                             bInt.addValeurFromCSV(Integer.parseInt(data[0]), numRow);
                         }
                     }
-                    bInt.checkMapCSV();
+                    //bInt.checkMapCSV();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

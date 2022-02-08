@@ -1,11 +1,13 @@
 package fr.miage.fsgbd;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-
 
 /**
  * @author Galli Gregory, Mopolo Moke Gabriel
@@ -13,11 +15,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class BTreePlus<Type> implements java.io.Serializable {
     private Noeud<Type> racine;
-    private Map<Integer, Integer> mapCSV = new HashMap<Integer,Integer>();
-    
-    //Collection des noeuds feuilles ordonnées dans l'arbre
-    public ArrayList<Noeud<Type>> sheetLink = new ArrayList<Noeud<Type>>();
+    private Map<Integer, Integer> mapCSV = new HashMap<Integer, Integer>();
 
+    // Collection des noeuds feuilles ordonnées dans l'arbre
+    public ArrayList<Noeud<Type>> sheetLink = new ArrayList<Noeud<Type>>();
 
     public BTreePlus(int u, Executable e) {
         racine = new Noeud<Type>(u, e, null);
@@ -27,65 +28,64 @@ public class BTreePlus<Type> implements java.io.Serializable {
         racine.afficheNoeud(true, 0);
     }
 
-    public void createSheetLink(){
+    public void createSheetLink() {
         Noeud<Type> sheet = null;
         // Récupére le noeaud le plus haut de l'arbre
         Noeud<Type> n = racine;
         int i = 0;
         boolean process = true;
 
-        while(process){
+        while (process) {
             // Récupère la première feuille de l'arbre
             n = goFirstSheetOfNoeud(n);
             // Ajout de la première feuille de l'arbre dans la liste
             sheetLink.add(n);
 
-            while((n = n.getNoeudSuivant()) != null){
+            while ((n = n.getNoeudSuivant()) != null) {
                 sheetLink.add(n);
             }
 
-
-            
         }
     }
 
-    // Fonction recursive permettant de remonter l'arbre jusqu'a obtention d'un noeud suivant
-    public Noeud<Type> checkNext(Noeud<Type> n){
-        if(n.getNoeudSuivant() != null){
+    // Fonction recursive permettant de remonter l'arbre jusqu'a obtention d'un
+    // noeud suivant
+    public Noeud<Type> checkNext(Noeud<Type> n) {
+        if (n.getNoeudSuivant() != null) {
             return n;
         } else {
             n.getParent();
-            //si on remonte jusqu'à la racine => stop => on a fini de traverser l'arbre
-            if(n == racine){
+            // si on remonte jusqu'à la racine => stop => on a fini de traverser l'arbre
+            if (n == racine) {
                 return null;
             }
             checkNext(n);
         }
-        //ne devrait jamais passer ici
+        // ne devrait jamais passer ici
         return null;
     }
 
-    public Noeud<Type> goFirstSheetOfNoeud(Noeud<Type> r){
-        while(!r.fils.isEmpty()){
+    public Noeud<Type> goFirstSheetOfNoeud(Noeud<Type> r) {
+        while (!r.fils.isEmpty()) {
             r = r.fils.get(0);
         }
         return r;
     }
 
-    public void addSheetsOfNoeud(Noeud<Type> r){
+    public void addSheetsOfNoeud(Noeud<Type> r) {
         sheetLink.add(r);
     }
 
-/**
- *             
-            int nb = 0;
-            sheetLink.forEach((sh) -> {
-                sh.keys.forEach((key) -> {
-                    System.out.println(nb + " : " + key);            
-                });
-            });
- * 
- */
+    /**
+     * 
+     * int nb = 0;
+     * sheetLink.forEach((sh) -> {
+     * sh.keys.forEach((key) -> {
+     * System.out.println(nb + " : " + key);
+     * });
+     * });
+     * 
+     */
 
     /**
      * Méthode récursive permettant de récupérer tous les noeuds
@@ -108,7 +108,6 @@ public class BTreePlus<Type> implements java.io.Serializable {
         return racine2;
     }
 
-
     public boolean addValeur(Type valeur) {
         System.out.println("Ajout de la valeur : " + valeur.toString());
         if (racine.contient(valeur) == null) {
@@ -121,7 +120,7 @@ public class BTreePlus<Type> implements java.io.Serializable {
     }
 
     public boolean addValeurFromCSV(Type valeur, int numRow) {
-        System.out.println("Ajout de la valeur : " + valeur.toString() + " ayant comme pointeur " + numRow );
+        System.out.println("Ajout de la valeur : " + valeur.toString() + " ayant comme pointeur " + numRow);
         mapCSV.put(Integer.parseInt(valeur.toString()), numRow);
         if (racine.contient(valeur) == null) {
             Noeud<Type> newRacine = racine.addValeur(valeur);
@@ -132,12 +131,11 @@ public class BTreePlus<Type> implements java.io.Serializable {
         return false;
     }
 
-    public void checkMapCSV(){
+    public void checkMapCSV() {
         for (Map.Entry<Integer, Integer> entry : mapCSV.entrySet()) {
             System.out.println("Clef " + entry.getKey() + " - Valeur " + entry.getValue());
         }
     }
-
 
     public void removeValeur(Type valeur) {
         System.out.println("Retrait de la valeur : " + valeur.toString());
@@ -146,5 +144,40 @@ public class BTreePlus<Type> implements java.io.Serializable {
             if (racine != newRacine)
                 racine = newRacine;
         }
+    }
+
+    // RECHERCHE
+
+    public Integer searchForCsvValueViaMap(Integer wantedValue) {
+        // En se basant sur l'index
+        Object wantedKey = mapCSV.keySet().toArray()[wantedValue];
+        Object valueOfWantedKey = mapCSV.get(wantedKey);
+        System.out.println("Id value from Map :" + valueOfWantedKey + " for Index : " + wantedValue);
+
+        return null;
+    }
+
+    public Integer searchForCsvValueViaFile(Integer wantedValue, String csvPath) {
+        String row;
+        // On ignore le premier index, c'est la description des données du csv
+        int numRow = 0;
+        try {
+            BufferedReader csvReader = new BufferedReader(new FileReader(csvPath));
+            while ((row = csvReader.readLine()) != null) {
+                if (numRow == wantedValue) {
+                    String[] data = row.split(",");
+                        System.out.println(
+                            "Data Row " + numRow + " : " + data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
+                            // On retourne l'Id
+                    return Integer.parseInt(data[0]);
+                }
+                numRow++;
+            }
+            csvReader.close();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return null;
+        }
+        return null;
     }
 }

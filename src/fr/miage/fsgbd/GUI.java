@@ -73,8 +73,9 @@ public class GUI extends JFrame implements ActionListener {
                     while((row = csvReader.readLine()) != null){
                         numRow ++;
                         String[] data = row.split(",");
+                        
                         System.out.println("Data Row " + numRow + " : " + data[0] + " " +  data[1] + " " + data[2] + " " +  data[3]);
-                        // TODO : Gérer la row HEADER (ou enlever du CSV ??)   
+                            // TODO : Gérer la row HEADER (ou enlever du CSV ??)   
                         if (data[0].toString().contentEquals("id")){ // => pas terrible en l'état
                         } 
                         else {
@@ -82,12 +83,13 @@ public class GUI extends JFrame implements ActionListener {
                             bInt.addValeurFromCSV(Integer.parseInt(data[0]), numRow);
                         }
                     }
-                    //bInt.checkMapCSV();
+
+                    // bInt.checkMapCSV();
+                    bInt.searchForCsvValueViaFile(1, txtCSV.getText());
+                    bInt.searchForCsvValueViaMap(1);
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-
-
             }
             else if (e.getSource() == buttonAddItem) {
                 if (!bInt.addValeur(Integer.parseInt(txtNbreSpecificItem.getText())))

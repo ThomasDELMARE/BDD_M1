@@ -16,7 +16,7 @@ import java.io.IOException;
 public class GUI extends JFrame implements ActionListener {
     TestInteger testInt = new TestInteger();
     BTreePlus<Integer> bInt;
-    private JButton buttonClean, buttonRemove, buttonLoad, buttonSave, buttonAddMany, buttonAddItem, buttonRefresh, buttonAddFromCSV;
+    private JButton buttonClean, buttonRemove, buttonLoad, buttonSave, buttonAddMany, buttonAddItem, buttonRefresh, buttonAddFromCSV, buttonNextSheet;
     private JTextField txtNbreItem, txtNbreSpecificItem, txtU, txtFile, removeSpecific, txtCSV;
     private final JTree tree = new JTree();
 
@@ -100,7 +100,10 @@ public class GUI extends JFrame implements ActionListener {
 
             } else if (e.getSource() == buttonRemove) {
                 bInt.removeValeur(Integer.parseInt(removeSpecific.getText()));
+            } else if (e.getSource() == buttonNextSheet) {
+                bInt.createSheetLink();
             }
+
         }
 
         tree.setModel(new DefaultTreeModel(bInt.bArbreToJTree()));
@@ -266,12 +269,19 @@ public class GUI extends JFrame implements ActionListener {
         c.gridwidth = 1;
         pane1.add(txtCSV, c);
 
+        buttonNextSheet = new JButton("Noeud suivant");
+        c.gridx = 2;
+        c.gridy = 9;
+        c.weightx = 1;
+        c.gridwidth = 2;
+        pane1.add(buttonNextSheet, c);
+
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipady = 400;       //reset to default
         c.weighty = 1.0;   //request any extra vertical space
         c.gridwidth = 4;   //2 columns wide
         c.gridx = 0;
-        c.gridy = 9;
+        c.gridy = 10;
 
         JScrollPane scrollPane = new JScrollPane(tree);
         pane1.add(scrollPane, c);
@@ -288,6 +298,7 @@ public class GUI extends JFrame implements ActionListener {
         buttonClean.addActionListener(this);
         buttonRefresh.addActionListener(this);
         buttonAddFromCSV.addActionListener(this);
+        buttonNextSheet.addActionListener(this);
 
         return pane1;
     }

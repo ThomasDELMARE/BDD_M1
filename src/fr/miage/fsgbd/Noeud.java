@@ -26,7 +26,6 @@ public class Noeud<Type> implements java.io.Serializable {
     // Ordre de l'abre (keyMax = nombre de clefs maximum = 2m)
     private final int keyMax, tailleMin;
 
-
     /* Constructeur de la classe noeud, qui permet l'ajout et la recherche d'élément dans les branches
      * @param keyMax Nombre de clefs maximum du noeud
      * @param e Classe interfaçant "Executable" et donc contenant une procédure de comparaison de <Type>
@@ -37,6 +36,10 @@ public class Noeud<Type> implements java.io.Serializable {
         this.tailleMin = keyMax/2;
         compar = e;
         this.parent = parent;
+    }
+
+    public Noeud<Type> getParent(){
+        return parent;
     }
 
     public boolean compare(Type arg1, Type arg2) {
@@ -534,4 +537,6 @@ public class Noeud<Type> implements java.io.Serializable {
 
         return racine;
     }
+
+
 }

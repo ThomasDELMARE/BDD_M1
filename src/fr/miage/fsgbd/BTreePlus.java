@@ -3,11 +3,14 @@ package fr.miage.fsgbd;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -153,8 +156,16 @@ public class BTreePlus<Type> implements java.io.Serializable {
 
     public double searchForCsvValueViaMap(Integer wantedValue) {
         long startTime = System.nanoTime();
-
         Integer foundValue = mapCSV.get(wantedValue);
+        String lineToFind ="";
+
+        try (Stream<String> lines = Files.lines(Paths.get("DBProject.csv"))) {
+            lineToFind = lines.skip(foundValue-1).findFirst().get();
+        }
+        catch(IOException e1) {
+            e1.printStackTrace();
+            return 0;
+        }
 
         long endTime = System.nanoTime();
         long duration = (endTime - startTime);
@@ -191,7 +202,7 @@ public class BTreePlus<Type> implements java.io.Serializable {
                         // System.out.println("searchForCsvValueViaFile found : " + numRow);
                         // System.out.println("searchForCsvValueViaFile duration : " + duration);
 
-                        // On retourne l'Id
+                        // On retourne la durée d'exécution
                         return duration;
                     }
 
@@ -211,15 +222,15 @@ public class BTreePlus<Type> implements java.io.Serializable {
         double totalFile = 0;
         double totalMap = 0;
 
-        double tempDurationFile = 0;
-        double tempDurationMap = 0;
+        double tempDurationFile;
+        double tempDurationMap;
 
         double maxCSvValueViaFile = 0;
         double maxCSvValueViaMap = 0;
 
         // Ca pourrait être géré d'une meilleure façon
-        double minCSvValueViaFile = 1000000;
-        double minCSvValueViaMap = 1000000;
+        double minCSvValueViaFile = 0;
+        double minCSvValueViaMap = 0;
 
         double moyenneCsvValueViaFile = 0;
         double moyenneCsvValueViaMap = 0;
@@ -228,20 +239,28 @@ public class BTreePlus<Type> implements java.io.Serializable {
             tempDurationFile = searchForCsvValueViaFile(listeRecherches.get(i), "");
             tempDurationMap = searchForCsvValueViaMap(listeRecherches.get(i));
 
-            // On regarde si la durée est plus grande que celle connue
-            if(tempDurationFile > maxCSvValueViaFile){
+            if(i == 0){
                 maxCSvValueViaFile = tempDurationFile;
-            }
-            if(tempDurationMap > maxCSvValueViaMap){
                 maxCSvValueViaMap = tempDurationMap;
-            }
-
-            // On regarde si la durée est plus petite que celle connue
-            if(tempDurationFile < minCSvValueViaFile){
                 minCSvValueViaFile = tempDurationFile;
-            }
-            if(tempDurationMap < minCSvValueViaMap){
                 minCSvValueViaMap = tempDurationMap;
+            }
+            else{
+                // On regarde si la durée est plus grande que celle connue
+                if(tempDurationFile > maxCSvValueViaFile){
+                    maxCSvValueViaFile = tempDurationFile;
+                }
+                if(tempDurationMap > maxCSvValueViaMap){
+                    maxCSvValueViaMap = tempDurationMap;
+                }
+
+                // On regarde si la durée est plus petite que celle connue
+                if(tempDurationFile < minCSvValueViaFile){
+                    minCSvValueViaFile = tempDurationFile;
+                }
+                if(tempDurationMap < minCSvValueViaMap){
+                    minCSvValueViaMap = tempDurationMap;
+                }
             }
 
             totalMap += tempDurationMap;

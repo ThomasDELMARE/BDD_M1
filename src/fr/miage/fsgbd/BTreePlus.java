@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- * @author Galli Gregory, Mopolo Moke Gabriel
+ * @author Galli Gregory, Mopolo Moke Gabriel, Nicolas Parizet, Thomas Delmare, Marie-Celeste SANCHEZ
  * @param <Type>
  */
 public class BTreePlus<Type> implements java.io.Serializable {
@@ -25,6 +25,9 @@ public class BTreePlus<Type> implements java.io.Serializable {
     // Collection des noeuds feuilles ordonnées dans l'arbre
     public ArrayList<Noeud<Type>> sheetLink = new ArrayList<Noeud<Type>>();
 
+    //Feuille de l'arbre affiché dans l'interface pour vérifier les suivantes => initialisé par la 1er feuille de l'arbre
+    private Noeud<Type> currentSheet;
+
     public BTreePlus(int u, Executable e) {
         racine = new Noeud<Type>(u, e, null);
     }
@@ -33,64 +36,83 @@ public class BTreePlus<Type> implements java.io.Serializable {
         racine.afficheNoeud(true, 0);
     }
 
+    public String getKeysNextSheet(){
+        String keys = "";
+        int length = currentSheet.keys.size();
+        for(int i = 0; i < length ; i++){
+            keys += currentSheet.keys.get(i) +" ";
+        }
+        this.currentSheet = currentSheet.getNextSheet();
+        return keys;
+    }
+
+
     public void createSheetLink() {
-        Noeud<Type> sheet = null;
-        // Récupére le noeaud le plus haut de l'arbre
+        // Récupére le noeud le plus haut de l'arbre
         Noeud<Type> n = racine;
-        int i = 0;
         boolean process = true;
 
+        // Récupère la première feuille de l'arbre
+        n = goFirstSheetOfNoeud(n);
+
+        //Définie premier noeud de l'arbre
+        this.currentSheet = n;
+
+        // Ajout de la première feuille de l'arbre dans la liste
+        sheetLink.add(n);        
         while (process) {
-            // Récupère la première feuille de l'arbre
-            n = goFirstSheetOfNoeud(n);
-            // Ajout de la première feuille de l'arbre dans la liste
-            sheetLink.add(n);
-
-            while ((n = n.getNoeudSuivant()) != null) {
-                sheetLink.add(n);
+            if (!n.fils.isEmpty()){
+                n = goFirstSheetOfNoeud(n);
             }
-
+            if((n = checkNext(n)) != null){
+                if (n.fils.isEmpty()){
+                    //Set la variable de la feuille précédente pour que celui-ci pointe vers le noeud actuel, soit la feuille suivant !
+                    sheetLink.get(sheetLink.size()-1).setNextSheet(n);;
+                    sheetLink.add(n);
+                    /*n.keys.forEach((key) -> {
+                        System.out.println(" Feuille " + key); 
+                    });*/
+                }
+            } else {
+                process = false;
+            }
         }
+        //checkSheet();
     }
 
-    // Fonction recursive permettant de remonter l'arbre jusqu'a obtention d'un
-    // noeud suivant
+    // Fonction permettant de remonter l'arbre jusqu'a obtention d'un noeud suivant
     public Noeud<Type> checkNext(Noeud<Type> n) {
-        if (n.getNoeudSuivant() != null) {
-            return n;
-        } else {
-            n.getParent();
-            // si on remonte jusqu'à la racine => stop => on a fini de traverser l'arbre
-            if (n == racine) {
+        while(n.getNoeudSuivant() == null){
+            n = n.getParent();
+            if(n.getParent() == null){
                 return null;
             }
-            checkNext(n);
         }
-        // ne devrait jamais passer ici
-        return null;
-    }
-
-    public Noeud<Type> goFirstSheetOfNoeud(Noeud<Type> r) {
-        while (!r.fils.isEmpty()) {
-            r = r.fils.get(0);
+        n = n.getNoeudSuivant();
+        if(!n.fils.isEmpty()){
+            n = goFirstSheetOfNoeud(n);
         }
-        return r;
+        return n;
     }
 
-    public void addSheetsOfNoeud(Noeud<Type> r) {
-        sheetLink.add(r);
+    
+    //Fonction permettant d'aller récupérer la 1er feuille de l'arbre
+    public Noeud<Type> goFirstSheetOfNoeud(Noeud<Type> n) {
+        while (!n.fils.isEmpty()) {
+            n = n.fils.get(0);
+        }
+        return n;
     }
 
-    /**
-     * 
-     * int nb = 0;
-     * sheetLink.forEach((sh) -> {
-     * sh.keys.forEach((key) -> {
-     * System.out.println(nb + " : " + key);
-     * });
-     * });
-     * 
-     */
+    //Fonction pour vérifier la liste des feuilles dans l'ordre
+    public void checkSheet() {
+        sheetLink.forEach((n) -> {
+            n.keys.forEach((key) -> {
+                System.out.println(" => " + key); 
+            });
+        });
+    }
+
 
     /**
      * Méthode récursive permettant de récupérer tous les noeuds
@@ -157,7 +179,7 @@ public class BTreePlus<Type> implements java.io.Serializable {
     public double searchForCsvValueViaMap(Integer wantedValue) {
         long startTime = System.nanoTime();
         Integer foundValue = mapCSV.get(wantedValue);
-        String lineToFind ="";
+        String lineToFind = "";
 
         try (Stream<String> lines = Files.lines(Paths.get("DBProject.csv"))) {
             lineToFind = lines.skip(foundValue-1).findFirst().get();
@@ -216,8 +238,9 @@ public class BTreePlus<Type> implements java.io.Serializable {
         return 0;
     }
 
-    public void lancerTestRecherche() {
+    public HashMap<String,Double> lancerTestRecherche() {
         ArrayList<Integer> listeRecherches = genererNombresAleatoires();
+        HashMap<String,Double> timeResults = new HashMap<String,Double>();
         
         double totalFile = 0;
         double totalMap = 0;
@@ -272,14 +295,22 @@ public class BTreePlus<Type> implements java.io.Serializable {
         moyenneCsvValueViaFile = totalFile / listeRecherches.size();
         moyenneCsvValueViaMap = totalMap / listeRecherches.size();
 
-        System.out.println("\nPlus petite valeur pour Map : " + minCSvValueViaMap);
-        System.out.println("Plus grande valeur pour Map : " + maxCSvValueViaMap);
-        System.out.println("Moyenne pour Map : " + moyenneCsvValueViaMap);
+        /*System.out.println("\nPlus petite valeur pour Map : " + minCSvValueViaMap + " ms");
+        System.out.println("Plus grande valeur pour Map : " + maxCSvValueViaMap + " ms");
+        System.out.println("Moyenne pour Map : " + moyenneCsvValueViaMap + " ms");
 
-        System.out.println("\nPlus petite valeur pour File : " + minCSvValueViaFile);
-        System.out.println("Plus grande valeur pour File : " + maxCSvValueViaFile);
-        System.out.println("Moyenne pour File : " + moyenneCsvValueViaFile);
+        System.out.println("\nPlus petite valeur pour File : " + minCSvValueViaFile + " ms");
+        System.out.println("Plus grande valeur pour File : " + maxCSvValueViaFile + " ms");
+        System.out.println("Moyenne pour File : " + moyenneCsvValueViaFile + " ms");*/
 
+        timeResults.put("minMap", minCSvValueViaMap);
+        timeResults.put("maxMap", maxCSvValueViaMap);
+        timeResults.put("avgMap", moyenneCsvValueViaMap);
+        timeResults.put("minCSV", minCSvValueViaFile);
+        timeResults.put("maxCSV", maxCSvValueViaFile);
+        timeResults.put("avgCSV", moyenneCsvValueViaFile);
+
+        return timeResults;
     }
 
     public ArrayList<Integer> genererNombresAleatoires() {

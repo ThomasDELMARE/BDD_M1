@@ -7,6 +7,7 @@ import java.util.ArrayList;
  * Classe de gestion des noeuds du b+Arbre
  * @author LAUGIER Vincent; COFFRE Jean-Denis
  * @author Galli Gregory, Mopolo Moke Gabriel
+ * @author Nicolas Parizet, Thomas Delmare, Marie-Celeste SANCHEZ
  */
 public class Noeud<Type> implements java.io.Serializable {
 
@@ -19,6 +20,9 @@ public class Noeud<Type> implements java.io.Serializable {
 
     // Noeud Parent du noeud courant
     private Noeud<Type> parent;
+
+    // Feuille suivante de la feuille
+    private Noeud<Type> nextSheet;
 
     // Classe interfaçant "Executable" et donc contenant une procédure de comparaison de <Type>
     private Executable compar;
@@ -40,6 +44,14 @@ public class Noeud<Type> implements java.io.Serializable {
 
     public Noeud<Type> getParent(){
         return parent;
+    }
+
+    public Noeud<Type> getNextSheet(){
+        return nextSheet;
+    }
+
+    public void setNextSheet(Noeud<Type> nextSheet){
+        this.nextSheet = nextSheet;
     }
 
     public boolean compare(Type arg1, Type arg2) {

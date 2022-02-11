@@ -105,6 +105,7 @@ public class GUI extends JFrame implements ActionListener {
                                 Integer.parseInt(txtNbreSpecificItem.getText()) + 2
                         )
                 );
+                bInt.resetAllNextSheet();
 
             } else if (e.getSource() == buttonRemove) {
                 if(bInt.sheetLink.isEmpty()){
@@ -112,6 +113,7 @@ public class GUI extends JFrame implements ActionListener {
                     JOptionPane.WARNING_MESSAGE);
                 } else {
                     bInt.removeValeur(Integer.parseInt(removeSpecific.getText()));
+                    bInt.resetAllNextSheet();
                 }
             } else if (e.getSource() == buttonNextSheet) {
                 if(bInt.sheetLink.isEmpty()){

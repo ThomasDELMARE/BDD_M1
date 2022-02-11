@@ -113,6 +113,10 @@ public class BTreePlus<Type> implements java.io.Serializable {
         });
     }
 
+    public void resetAllNextSheet(){
+        sheetLink.clear();
+        createSheetLink();
+    }
 
     /**
      * Méthode récursive permettant de récupérer tous les noeuds
